@@ -24,4 +24,4 @@ def build_file_review_subgraph():
     graph.set_finish_point("comment")
 
     result = graph.compile()
-    return result.invoke(FileReviewState)
+    return result

@@ -1,44 +1,38 @@
+from github import Github
 import os
-import requests
-from dotenv import load_dotenv
-load_dotenv()
 
-def post_to_github_node(state):
-    owner = state["owner"]
-    repo = state["repo"]
-    pr_number = state["pr_number"]
-    comments = state.get("comments", [])
-    summary = state.get("summary", "")
-
+def approval_node(state: dict) -> dict:
     github_token = os.getenv("GITHUB_TOKEN")
-    headers = {
-        "Authorization": f"token {github_token}",
-        "Accept": "application/vnd.github+json"
-    }
+    g = Github(github_token)
 
-    for c in comments:
-        line = c["line"]
-        comment_body = c["comment"]
-        comment_data = {
-            "body": comment_body,
-            "commit_id": state.get("commit_id"),  
-            "path": state.get("file_path"),       
-            "line": line,
-            "side": "RIGHT"
-        }
+    owner = state["owner"]
+    repo_name = state["repo"]
+    pr_number = state["pr_number"]
 
-        url = f"https://api.github.com/repos/{owner}/{repo}/pulls/{pr_number}/comments"
-        response = requests.post(url, headers=headers, json=comment_data)
-        if not response.ok:
-            print(f"Failed to post inline comment: {response.text}")
+    repo = g.get_repo(f"{owner}/{repo_name}")
+    pull = repo.get_pull(pr_number)
 
-    summary_data = {
-        "body": f"### Code Review Summary\n{summary}"
-    }
-    summary_url = f"https://api.github.com/repos/{owner}/{repo}/issues/{pr_number}/comments"
-    summary_response = requests.post(summary_url, headers=headers, json=summary_data)
+    #  approve if no major issues
+    file_reviews = state.get("file_reviews", [])
 
-    if not summary_response.ok:
-        print(f"Failed to post summary: {summary_response.text}")
-    
+    all_good = True
+
+    for review in file_reviews:
+        code_review = review.get("code_review", "")
+        security_review = review.get("security_review", "")
+
+        # If code review or security review says anything negative, you can customize
+        if "error" in code_review.lower() or "error" in security_review.lower():
+            all_good = False
+            break
+
+    if all_good:
+        pull.create_review(
+            body="✅Approved by Copilot Bot - All checks passed!",
+            event="APPROVE",
+        )
+        state["approval_status"] = "approved"
+    else:
+        state["approval_status"] = "changes_requested"
+
     return state
