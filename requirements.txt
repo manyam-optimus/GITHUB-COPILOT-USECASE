@@ -1,5 +1,7 @@
 langgraph
 langchain
+langchain_openai
 openai 
 python-dotenv 
 requests
+PyGithub

@@ -4,8 +4,8 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-def analyze_code_node(state):
-    diff=state.get("pr_diff","")
+def security_check_node(state):
+    diff = state.get("pr_diff","")
     api_key = os.getenv("AZURE_OPENAI_KEY")
     endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
     version = os.getenv("AZURE_OPENAI_API_VERSION")
@@ -18,19 +18,22 @@ def analyze_code_node(state):
     api_version=version,
     temperature=0
 )
-
+    
     prompt = f"""
-    You are a senior software engineer. Review the following GitHub Pull Request diff and provide:
-    - Code quality issues
-    - Suggestions for improvement
-    - Any bugs or logic errors
-    - If everything looks fine, say so.
+    You are an expert in secure and high-performance software development.
+    Analyze the following GitHub Pull Request diff for:
+    - Security vulnerabilities (e.g., unsanitized input, insecure dependencies)
+    - Performance issues (e.g., inefficient loops, blocking calls)
+    - Dependency risks
+
+    Provide detailed feedback with suggestions.
 
     Diff:
     {diff}
     """
-    messages=[HumanMessage(content=prompt)]
-    response=llm(messages)
 
-    state["code_review"]=response.content
+    messages = [HumanMessage(content=prompt)]
+    response = llm(messages)
+
+    state["security_review"] = response.content
     return state
