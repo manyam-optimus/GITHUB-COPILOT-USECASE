@@ -99,7 +99,7 @@ if __name__ == "__main__":
     test_state = {
         "owner": "manyam-optimus",
         "repo": "GITHUB-COPILOT-USECASE",
-        "pr_number": 3,
+        "pr_number": 5,
         "commit_id": ""
     }
 
