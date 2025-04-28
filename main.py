@@ -3,7 +3,7 @@ from typing import TypedDict, List, Dict
 from nodes.fetch_pr import fetch_pr_node
 from nodes.approve import approval_node
 from nodes.summarize import summarize_node
-from nodes.post_to_github import post_review_comments_node
+from nodes.post_to_github import approval_node
 from graphs.file_review_subgraph import build_file_review_subgraph
 
 class State(TypedDict):
@@ -83,7 +83,7 @@ workflow.add_node("review_files", run_reviews_per_file)
 
 workflow.add_node("approve_pr", approval_node)
 workflow.add_node("summarize", summarize_node)
-workflow.add_node("post_review_comments", post_review_comments_node)
+workflow.add_node("post_review_comments", approval_node)
 
 
 workflow.set_entry_point("fetch_pr")
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     test_state = {
         "owner": "manyam-optimus",
         "repo": "GITHUB-COPILOT-USECASE",
-        "pr_number": 1,
+        "pr_number": 3,
         "commit_id": ""
     }
 
