@@ -32,6 +32,7 @@ def main():
 
         # Displaying the result
         print(f"The area of the circle with radius {radius_input} is {area:.2f}.")
+        print("Well done !!")
 
     except ValueError as e:
         print(f"Error: {e}")
